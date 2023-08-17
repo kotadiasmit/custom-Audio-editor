@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useRef } from "react";
 import WaveSurfer from "wavesurfer.js";
-import RegionsPlugin from "wavesurfer.js/dist/plugins/regions.esm.js";
+//import Regions from "wavesurfer.js/dist/plugins/regions.esm.js";
+import Regions from "wavesurfer.js/plugins/regions";
 import AudioEditor from "./audioEditor";
 import initialOptions from "./initialOptions";
 
@@ -42,7 +43,7 @@ const WaveformOptions = () => {
       //console.log("time:" + currentTime + "s");
     });
 
-    const wsRegions = wavesurferInstance.registerPlugin(RegionsPlugin.create());
+    const wsRegions = wavesurferInstance.registerPlugin(Regions.create());
     wavesurferInstance.on("decode", () => {
       wsRegions.addRegion({
         start: 0,
@@ -95,21 +96,21 @@ const WaveformOptions = () => {
 
   const handleTrim = async () => {
     console.log(123);
-    console.log(wavesurferRef.current);
-    if (wavesurferRef.current) {
+    console.log(wavesurferObj);
+    if (wavesurferObj) {
       // get start and end points of the selected region
-      const region = wavesurferRef.current.plugins[2].regions[0];
+      const region = wavesurferObj.plugins[2].regions[0];
       console.log(region);
       if (region) {
         const start = region.start;
         const end = region.end;
 
         // obtain the original array of the audio
-        // const original_buffer = wavesurferRef.current.backend.buffer;
-        const original_buffer = wavesurferRef.current.decodedData;
+        //const original = wavesurferObj.backend.buffer;
+        const original_buffer = wavesurferObj.getDecodedData();
         console.log(original_buffer);
         // create a temporary new buffer array with the same length, sample rate and no of channels as the original audio
-        const new_buffer = wavesurferRef.current.decodedData;
+        const new_buffer = wavesurferObj.getDecodedData();
         console.log(new_buffer);
 
         // create 2 indices:
@@ -148,7 +149,7 @@ const WaveformOptions = () => {
         new_buffer.copyToChannel(combined, 0);
         console.log(new_buffer);
         // load the new_buffer, to restart the wavesurfer's waveform display
-        wavesurferRef.current.loadDecodedBuffer(new_buffer);
+        wavesurferObj.loadDecodedBuffer(new_buffer);
       }
     }
   };
