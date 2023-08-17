@@ -1,6 +1,4 @@
-import WaveSurfer from "wavesurfer.js";
-
-const AudioEditor = ({ handleInputChange, options }) => {
+const AudioEditor = ({ handleInputChange, options, setLoop }) => {
   return (
     <div className="option-container">
       <form className="audio-form-style">
@@ -30,6 +28,7 @@ const AudioEditor = ({ handleInputChange, options }) => {
             type="range"
             id="minPxPerSec"
             className="input-text"
+            value={options.minPxPerSec}
             onChange={(e) => handleInputChange(e)}
           />
         </div>
@@ -59,6 +58,16 @@ const AudioEditor = ({ handleInputChange, options }) => {
             id="uploadedAudio"
             className="input-text"
             onChange={(e) => handleInputChange(e)}
+          />
+        </div>
+        <div className="form-sub-container">
+          <label className="form-label" htmlFor="loop">
+            Trim Loop
+          </label>
+          <input
+            type="checkBox"
+            id="loop"
+            onChange={() => setLoop((prev) => !prev)}
           />
         </div>
         <button className="trim-btn">Trim Song</button>
