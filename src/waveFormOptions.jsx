@@ -1,66 +1,28 @@
 import { useState, useEffect } from "react";
 import { useRef } from "react";
 import WaveSurfer from "wavesurfer.js";
-import MinimapPlugin from "wavesurfer.js/dist/plugins/minimap.esm.js";
 import RegionsPlugin from "wavesurfer.js/dist/plugins/regions.esm.js";
-import TimelinePlugin from "wavesurfer.js/dist/plugins/timeline.esm.js";
 import AudioEditor from "./audioEditor";
-
-const minimap = MinimapPlugin.create({
-  //for Register the plugin
-  height: 20,
-  waveColor: "#ddd",
-  progressColor: "#999",
-  // the Minimap takes all the same options as the WaveSurfer itself
-});
-const topTimeline = TimelinePlugin.create({
-  height: 15,
-  insertPosition: "beforebegin",
-  timeInterval: 0.5,
-  primaryLabelInterval: 5,
-  secondaryLabelInterval: 0,
-  style: {
-    "margin-bottom": "10px",
-    "font-size": "10px",
-    color: "#000000",
-  },
-});
-const initialOptions = {
-  container: "#mainContainer",
-  height: 120,
-  splitChannels: false,
-  normalize: false,
-  waveColor: "#ff4e00",
-  progressColor: "#dd5e98",
-  cursorColor: "#ddd5e9",
-  cursorWidth: 2,
-  barRadius: null,
-  barHeight: null,
-  barAlign: "",
-  fillParent: true,
-  mediaControls: true,
-  autoplay: false,
-  interact: true,
-  hideScrollbar: false,
-  audioRate: 1,
-  autoScroll: true,
-  autoCenter: true,
-  sampleRate: 8000,
-  plugins: [minimap, topTimeline],
-};
+import initialOptions from "./initialOptions";
 
 const WaveformOptions = () => {
+  const [wavesurferObj, setWavesurferObj] = useState();
   const [options, setOptions] = useState({
     barWidth: 1,
     barGap: 1,
-    url: "/Maan Meri Jaan_64(PagalWorld.com.pe).mp3",
     minPxPerSec: 25,
   });
+  const [url, setUrl] = useState("/Maan Meri Jaan_64(PagalWorld.com.pe).mp3");
   const [loop, setLoop] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
 
   const wavesurferRef = useRef(null);
   //console.log(currentTime);
+  useEffect(() => {
+    if (wavesurferObj) {
+      wavesurferObj.setOptions(options);
+    }
+  }, [options]);
+
   useEffect(() => {
     console.log(wavesurferRef.current);
     if (wavesurferRef.current) {
@@ -69,13 +31,14 @@ const WaveformOptions = () => {
     const wavesurferInstance = WaveSurfer.create({
       ...initialOptions,
       ...options,
+      url,
     });
+    setWavesurferObj(wavesurferInstance);
 
     wavesurferInstance.on("ready", () => {
       wavesurferInstance.setTime(0);
     });
     wavesurferInstance.on("timeupdate", (currentTime) => {
-      setCurrentTime(currentTime);
       //console.log("time:" + currentTime + "s");
     });
 
@@ -128,7 +91,7 @@ const WaveformOptions = () => {
         wavesurferRef.current.destroy();
       }
     };
-  }, [options, loop]);
+  }, [loop, url]);
 
   const handleTrim = async () => {
     console.log(123);
@@ -195,13 +158,13 @@ const WaveformOptions = () => {
 
     if (id === "uploadedAudio") {
       value = URL.createObjectURL(e.target.files[0]);
-      id = "url";
+      setUrl(value);
+    } else {
+      setOptions((prevOptions) => ({
+        ...prevOptions,
+        [id]: value,
+      }));
     }
-    console.log(id, value);
-    setOptions((prevOptions) => ({
-      ...prevOptions,
-      [id]: value,
-    }));
   };
 
   return (
