@@ -1,4 +1,4 @@
-const AudioEditor = ({ handleInputChange, options, setLoop }) => {
+const AudioEditor = ({ handleInputChange, options, setLoop, handleTrim }) => {
   return (
     <div className="option-container">
       <form className="audio-form-style">
@@ -70,7 +70,9 @@ const AudioEditor = ({ handleInputChange, options, setLoop }) => {
             onChange={() => setLoop((prev) => !prev)}
           />
         </div>
-        <button className="trim-btn">Trim Song</button>
+        <button className="trim-btn" type="button" onClick={handleTrim}>
+          Trim Song
+        </button>
       </form>
     </div>
   );
