@@ -10,7 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "audiobuffer-to-wav": "^1.0.0",
+    "lamejs": "^1.2.1",
     "react": "^18.2.0",
+    "react-audio": "^0.0.1",
     "react-dom": "^18.2.0",
     "wavesurfer.js": "^7.1.4"
   },

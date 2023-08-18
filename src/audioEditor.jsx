@@ -18,6 +18,21 @@ const AudioEditor = ({ handleInputChange, options, setLoop, handleTrim }) => {
           />
         </div>
         <div className="form-sub-container">
+          <label className="form-label" htmlFor="barHeight">
+            Bar Height
+          </label>
+          <input
+            step={0.1}
+            min={0.1}
+            max={5}
+            type="range"
+            id="barHeight"
+            className="form-input "
+            value={options.barHeight}
+            onChange={(e) => handleInputChange(e)}
+          />
+        </div>
+        <div className="form-sub-container">
           <label className="form-label" htmlFor="minPxPerSec">
             Zoom
           </label>
@@ -48,15 +63,13 @@ const AudioEditor = ({ handleInputChange, options, setLoop, handleTrim }) => {
           />
         </div>
         <div className="form-sub-container">
-          <label className="form-label" htmlFor="uploadedAudio">
-            Upload Song
+          <label className="form-label" htmlFor="autoCenter">
+            Auto Center
           </label>
           <input
-            accept="audio/*"
-            capture="microphone"
-            type="file"
-            id="uploadedAudio"
-            className="form-input"
+            type="checkBox"
+            id="autoCenter"
+            value={options.audioCenter}
             onChange={(e) => handleInputChange(e)}
           />
         </div>
@@ -68,6 +81,19 @@ const AudioEditor = ({ handleInputChange, options, setLoop, handleTrim }) => {
             type="checkBox"
             id="loop"
             onChange={() => setLoop((prev) => !prev)}
+          />
+        </div>
+        <div className="form-sub-container">
+          <label className="form-label" htmlFor="uploadedAudio">
+            Upload Song
+          </label>
+          <input
+            accept="audio/*"
+            capture="microphone"
+            type="file"
+            id="uploadedAudio"
+            className="form-input"
+            onChange={(e) => handleInputChange(e)}
           />
         </div>
         <button className="trim-btn" type="button" onClick={handleTrim}>

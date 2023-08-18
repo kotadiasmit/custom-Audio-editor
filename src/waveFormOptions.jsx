@@ -10,7 +10,9 @@ const WaveformOptions = () => {
   const [wavesurferObj, setWavesurferObj] = useState();
   const [options, setOptions] = useState({
     barWidth: 1,
+    barHeight: 1,
     barGap: 1,
+    autoCenter: false,
     minPxPerSec: 25,
   });
   const [audio, setAudio] = useState({
@@ -99,6 +101,7 @@ const WaveformOptions = () => {
 
   const handleInputChange = (e) => {
     let { value, id } = e.target;
+    console.log(value, id);
 
     if (id === "uploadedAudio") {
       value = e.target.files[0];
@@ -107,6 +110,11 @@ const WaveformOptions = () => {
         url: URL.createObjectURL(value),
       };
       setAudio(audioDetails);
+    } else if (id === "autoCenter") {
+      setOptions((prevOptions) => ({
+        ...prevOptions,
+        [id]: !options.autoCenter,
+      }));
     } else {
       setOptions((prevOptions) => ({
         ...prevOptions,

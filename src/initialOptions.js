@@ -30,7 +30,7 @@ const initialOptions = {
   cursorColor: "#ddd5e9",
   cursorWidth: 2,
   barRadius: null,
-  barHeight: null, //
+  barHeight: null,
   barAlign: "",
   fillParent: true,
   mediaControls: true,
@@ -39,7 +39,7 @@ const initialOptions = {
   hideScrollbar: false,
   audioRate: 1,
   autoScroll: true,
-  autoCenter: true, //
+  autoCenter: false,
   barWidth: 1,
   barGap: 1,
   url: "/Maan Meri Jaan_64(PagalWorld.com.pe).mp3",
