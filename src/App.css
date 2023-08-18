@@ -7,7 +7,6 @@
 .main-container {
   display: flex;
   flex-direction: column;
-  justify-content: center;
 }
 .option-container {
   order: 1;
@@ -32,7 +31,7 @@
   width: 150px;
   text-align: start;
 }
-.input-text {
+.form-input {
   width: 30%;
 }
 .trim-btn {
@@ -46,6 +45,12 @@
   border: none;
   cursor: pointer;
   margin-top: 10px;
-  ma
 }
-
+@media (max-width: 567px) {
+  .form-label {
+    width: 115px;
+  }
+  .form-input {
+    width: 40%;
+  }
+}

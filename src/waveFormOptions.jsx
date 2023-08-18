@@ -13,7 +13,10 @@ const WaveformOptions = () => {
     barGap: 1,
     minPxPerSec: 25,
   });
-  const [url, setUrl] = useState("/Maan Meri Jaan_64(PagalWorld.com.pe).mp3");
+  const [audio, setAudio] = useState({
+    name: "Maan Meri Jaan_64(PagalWorld.com.pe).mp3",
+    url: "/Maan Meri Jaan_64(PagalWorld.com.pe).mp3",
+  });
   const [loop, setLoop] = useState(false);
 
   const wavesurferRef = useRef(null);
@@ -32,7 +35,7 @@ const WaveformOptions = () => {
     const wavesurferInstance = WaveSurfer.create({
       ...initialOptions,
       ...options,
-      url,
+      url: audio.url,
     });
     setWavesurferObj(wavesurferInstance);
 
@@ -92,9 +95,30 @@ const WaveformOptions = () => {
         wavesurferRef.current.destroy();
       }
     };
-  }, [loop, url]);
+  }, [loop, audio]);
+
+  const handleInputChange = (e) => {
+    let { value, id } = e.target;
+
+    if (id === "uploadedAudio") {
+      value = e.target.files[0];
+      const audioDetails = {
+        name: value.name,
+        url: URL.createObjectURL(value),
+      };
+      setAudio(audioDetails);
+    } else {
+      setOptions((prevOptions) => ({
+        ...prevOptions,
+        [id]: value,
+      }));
+    }
+  };
 
   const handleTrim = async () => {
+    console.log(wavesurferObj);
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    console.log(audioCtx);
     console.log(123);
     console.log(wavesurferObj);
     if (wavesurferObj) {
@@ -154,27 +178,16 @@ const WaveformOptions = () => {
     }
   };
 
-  const handleInputChange = (e) => {
-    let { value, id } = e.target;
-
-    if (id === "uploadedAudio") {
-      value = URL.createObjectURL(e.target.files[0]);
-      setUrl(value);
-    } else {
-      setOptions((prevOptions) => ({
-        ...prevOptions,
-        [id]: value,
-      }));
-    }
-  };
-
   return (
-    <AudioEditor
-      handleInputChange={handleInputChange}
-      options={options}
-      setLoop={setLoop}
-      handleTrim={handleTrim}
-    />
+    <>
+      <h3 title="audio name">{audio.name}</h3>
+      <AudioEditor
+        handleInputChange={handleInputChange}
+        options={options}
+        setLoop={setLoop}
+        handleTrim={handleTrim}
+      />
+    </>
   );
 };
 

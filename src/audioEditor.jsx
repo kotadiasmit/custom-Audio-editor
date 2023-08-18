@@ -12,7 +12,7 @@ const AudioEditor = ({ handleInputChange, options, setLoop, handleTrim }) => {
             max={20}
             type="range"
             id="barWidth"
-            className="input-text"
+            className="form-input "
             value={options.barWidth}
             onChange={(e) => handleInputChange(e)}
           />
@@ -27,7 +27,7 @@ const AudioEditor = ({ handleInputChange, options, setLoop, handleTrim }) => {
             max={200}
             type="range"
             id="minPxPerSec"
-            className="input-text"
+            className="form-input "
             value={options.minPxPerSec}
             onChange={(e) => handleInputChange(e)}
           />
@@ -42,7 +42,7 @@ const AudioEditor = ({ handleInputChange, options, setLoop, handleTrim }) => {
             max={9}
             type="range"
             id="barGap"
-            className="input-text"
+            className="form-input "
             value={options.barGap}
             onChange={(e) => handleInputChange(e)}
           />
@@ -56,7 +56,7 @@ const AudioEditor = ({ handleInputChange, options, setLoop, handleTrim }) => {
             capture="microphone"
             type="file"
             id="uploadedAudio"
-            className="input-text"
+            className="form-input"
             onChange={(e) => handleInputChange(e)}
           />
         </div>
