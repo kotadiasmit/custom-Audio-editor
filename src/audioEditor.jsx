@@ -24,7 +24,7 @@ const AudioEditor = ({ handleInputChange, options, setLoop, handleTrim }) => {
           <input
             step={0.1}
             min={0.1}
-            max={5}
+            max={3}
             type="range"
             id="barHeight"
             className="form-input "

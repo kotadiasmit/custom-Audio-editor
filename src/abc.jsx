@@ -43,6 +43,7 @@ const AudioTrim = () => {
         (end - start) * sampleRate,
         sampleRate
       );
+      console.log();
 
       for (let channel = 0; channel < audioBuffer.numberOfChannels; channel++) {
         const inputData = audioBuffer.getChannelData(channel);

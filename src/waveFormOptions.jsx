@@ -5,6 +5,7 @@ import WaveSurfer from "wavesurfer.js";
 import Regions from "wavesurfer.js/plugins/regions";
 import AudioEditor from "./audioEditor";
 import initialOptions from "./initialOptions";
+import toWav from "audiobuffer-to-wav";
 
 const WaveformOptions = () => {
   const [wavesurferObj, setWavesurferObj] = useState();
@@ -15,9 +16,10 @@ const WaveformOptions = () => {
     autoCenter: false,
     minPxPerSec: 25,
   });
+  const [audioBuffer, setAudioBuffer] = useState("");
   const [audio, setAudio] = useState({
-    name: "Maan Meri Jaan_64(PagalWorld.com.pe).mp3",
-    url: "/Maan Meri Jaan_64(PagalWorld.com.pe).mp3",
+    name: "",
+    url: "",
   });
   const [loop, setLoop] = useState(false);
 
@@ -30,7 +32,6 @@ const WaveformOptions = () => {
   }, [options]);
 
   useEffect(() => {
-    console.log(wavesurferRef.current);
     if (wavesurferRef.current) {
       wavesurferRef.current.destroy();
     }
@@ -39,7 +40,6 @@ const WaveformOptions = () => {
       ...options,
       url: audio.url,
     });
-    setWavesurferObj(wavesurferInstance);
 
     wavesurferInstance.on("ready", () => {
       wavesurferInstance.setTime(0);
@@ -90,8 +90,9 @@ const WaveformOptions = () => {
     wavesurferInstance.on("interaction", () => {
       activeRegion = null;
     });
-
+    setWavesurferObj(wavesurferInstance);
     wavesurferRef.current = wavesurferInstance;
+    console.log(wavesurferInstance);
     return () => {
       if (wavesurferRef.current) {
         wavesurferRef.current.destroy();
@@ -99,17 +100,25 @@ const WaveformOptions = () => {
     };
   }, [loop, audio]);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = async (e) => {
     let { value, id } = e.target;
     console.log(value, id);
-
     if (id === "uploadedAudio") {
       value = e.target.files[0];
-      const audioDetails = {
-        name: value.name,
-        url: URL.createObjectURL(value),
-      };
-      setAudio(audioDetails);
+      if (value) {
+        const audioDetails = {
+          name: value.name,
+          url: URL.createObjectURL(value),
+        };
+        const arrayBuffer = await value.arrayBuffer();
+        const audioCtx = new (window.AudioContext ||
+          window.webkitAudioContext)();
+        audioCtx.decodeAudioData(arrayBuffer, (buffer) => {
+          setAudioBuffer(buffer);
+        });
+        console.log(audioDetails);
+        setAudio(audioDetails);
+      }
     } else if (id === "autoCenter") {
       setOptions((prevOptions) => ({
         ...prevOptions,
@@ -124,7 +133,6 @@ const WaveformOptions = () => {
   };
 
   const handleTrim = async () => {
-    console.log(wavesurferObj);
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     console.log(audioCtx);
     console.log(123);
@@ -136,59 +144,51 @@ const WaveformOptions = () => {
       if (region) {
         const start = region.start;
         const end = region.end;
+        console.log(audio);
+        console.log(audioBuffer);
 
-        // obtain the original array of the audio
-        //const original = wavesurferObj.backend.buffer;
-        const original_buffer = wavesurferObj.getDecodedData();
-        console.log(original_buffer);
-        // create a temporary new buffer array with the same length, sample rate and no of channels as the original audio
-        const new_buffer = wavesurferObj.getDecodedData();
-        console.log(new_buffer);
+        const sampleRate = audioBuffer.sampleRate;
+        const newBuffer = audioCtx.createBuffer(
+          audioBuffer.numberOfChannels,
+          (end - start) * sampleRate,
+          sampleRate
+        );
 
-        // create 2 indices:
-        // left & right to the part to be trimmed
-        const first_list_index = start * original_buffer.sampleRate;
-        const second_list_index = end * original_buffer.sampleRate;
-        const second_list_mem_alloc =
-          original_buffer.length - end * original_buffer.sampleRate;
+        for (
+          let channel = 0;
+          channel < audioBuffer.numberOfChannels;
+          channel++
+        ) {
+          const inputData = audioBuffer.getChannelData(channel);
+          const outputData = newBuffer.getChannelData(channel);
 
-        // create a new array upto the region to be trimmed
-        const new_list = new Float32Array(parseInt(first_list_index));
+          for (
+            let i = start * sampleRate, j = 0;
+            i < end * sampleRate;
+            i++, j++
+          ) {
+            outputData[j] = inputData[i];
+          }
+        }
 
-        // create a new array of region after the trimmed region
-        const second_list = new Float32Array(parseInt(second_list_mem_alloc));
-
-        // create an array to combine the 2 parts
-        const combined = new Float32Array(original_buffer.length);
-
-        // 2 channels: 1-right, 0-left
-        // copy the buffer values for the 2 regions from the original buffer
-
-        // for the region to the left of the trimmed section
-        original_buffer.copyFromChannel(new_list, 1);
-        original_buffer.copyFromChannel(new_list, 0);
-
-        // for the region to the right of the trimmed section
-        original_buffer.copyFromChannel(second_list, 1, second_list_index);
-        original_buffer.copyFromChannel(second_list, 0, second_list_index);
-
-        // create the combined buffer for the trimmed audio
-        combined.set(new_list);
-        combined.set(second_list, first_list_index);
-
-        // copy the combined array to the new_buffer
-        new_buffer.copyToChannel(combined, 1);
-        new_buffer.copyToChannel(combined, 0);
-        console.log(new_buffer);
-        // load the new_buffer, to restart the wavesurfer's waveform display
-        wavesurferObj.loadDecodedBuffer(new_buffer);
+        const wavData = toWav(newBuffer);
+        const blob = new Blob([new Uint8Array(wavData)], { type: "audio/wav" });
+        const url = URL.createObjectURL(blob);
+        setAudio((prev) => {
+          console.log(prev);
+          return { ...prev, url };
+        });
       }
     }
   };
 
   return (
     <>
-      <h3 title="audio name">{audio.name}</h3>
+      {audio.name ? (
+        <h3 title="audio name">{audio.name}</h3>
+      ) : (
+        <h2>Please Upload Music</h2>
+      )}
       <AudioEditor
         handleInputChange={handleInputChange}
         options={options}
