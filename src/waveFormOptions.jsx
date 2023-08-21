@@ -6,7 +6,6 @@ import Regions from "wavesurfer.js/plugins/regions";
 import AudioEditor from "./audioEditor";
 import initialOptions from "./initialOptions";
 import toWav from "audiobuffer-to-wav";
-import { saveAs } from "file-saver";
 
 const WaveformOptions = () => {
   const [wavesurferObj, setWavesurferObj] = useState();
@@ -41,15 +40,14 @@ const WaveformOptions = () => {
       ...options,
       url: audio.url,
     });
+    setWavesurferObj(wavesurferInstance);
 
     wavesurferInstance.on("ready", () => {
       wavesurferInstance.setTime(0);
     });
-    wavesurferInstance.on("timeupdate", (currentTime) => {
-      //console.log("time:" + currentTime + "s");
-    });
 
     const wsRegions = wavesurferInstance.registerPlugin(Regions.create());
+
     wavesurferInstance.on("decode", () => {
       wsRegions.addRegion({
         start: 0,
@@ -91,7 +89,7 @@ const WaveformOptions = () => {
     wavesurferInstance.on("interaction", () => {
       activeRegion = null;
     });
-    setWavesurferObj(wavesurferInstance);
+
     wavesurferRef.current = wavesurferInstance;
     console.log(wavesurferInstance);
     return () => {
@@ -103,7 +101,7 @@ const WaveformOptions = () => {
 
   const handleInputChange = async (e) => {
     let { value, id } = e.target;
-    console.log(value, id);
+
     if (id === "uploadedAudio") {
       value = e.target.files[0];
       if (value) {
@@ -111,14 +109,15 @@ const WaveformOptions = () => {
           name: value.name,
           url: URL.createObjectURL(value),
         };
+        setAudio(audioDetails);
+
+        //set AudioBuffer for trimming purpose
         const arrayBuffer = await value.arrayBuffer();
         const audioCtx = new (window.AudioContext ||
           window.webkitAudioContext)();
         audioCtx.decodeAudioData(arrayBuffer, (buffer) => {
           setAudioBuffer(buffer);
         });
-        console.log(audioDetails);
-        setAudio(audioDetails);
       }
     } else if (id === "autoCenter") {
       setOptions((prevOptions) => ({
@@ -135,8 +134,6 @@ const WaveformOptions = () => {
 
   const handleTrim = async () => {
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    console.log(audioCtx);
-    console.log(wavesurferObj);
     if (wavesurferObj) {
       // get start and end points of the selected region
       const region = wavesurferObj.plugins[2].regions[0];
@@ -149,29 +146,15 @@ const WaveformOptions = () => {
 
         const sampleRate = audioBuffer.sampleRate;
         console.log(sampleRate);
+
+        //cerate a new buffer for trimming
         const newBuffer = audioCtx.createBuffer(
           audioBuffer.numberOfChannels,
           (end - start) * sampleRate,
           sampleRate
         );
-        console.log(newBuffer);
-        // for (
-        //   let channel = 0;
-        //   channel < audioBuffer.numberOfChannels;
-        //   channel++
-        // ) {
-        //   const inputData = audioBuffer.getChannelData(channel);
-        //   const outputData = newBuffer.getChannelData(channel);
-        //   for (
-        //     let i = start * sampleRate, j = 0;
-        //     i < end * sampleRate;
-        //     i++, j++
-        //   ) {
 
-        //     outputData[j] = inputData[i];
-        //   }
-        // }
-
+        // get data from oldBuffer(audioBuffer) & set it in newBuffer.
         for (
           let channel = 0;
           channel < audioBuffer.numberOfChannels;
@@ -190,19 +173,19 @@ const WaveformOptions = () => {
           }
         }
 
+        //create a new blob for audio to create a url
         const wavData = toWav(newBuffer);
         const blob = new Blob([new Uint8Array(wavData)], { type: "audio/wav" });
         const url = URL.createObjectURL(blob);
+
+        // Fetch the audio data from the URL for setting new AudioBuffer
         const response = await fetch(url);
         console.log(response);
         const arrayBuffer = await response.arrayBuffer();
         audioCtx.decodeAudioData(arrayBuffer, (buffer) => {
           setAudioBuffer(buffer);
         });
-        setAudio((prev) => {
-          console.log(prev);
-          return { ...prev, url };
-        });
+        setAudio((prev) => ({ ...prev, url }));
       }
     }
   };
