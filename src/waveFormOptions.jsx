@@ -6,6 +6,7 @@ import Regions from "wavesurfer.js/plugins/regions";
 import AudioEditor from "./audioEditor";
 import initialOptions from "./initialOptions";
 import toWav from "audiobuffer-to-wav";
+import { saveAs } from "file-saver";
 
 const WaveformOptions = () => {
   const [wavesurferObj, setWavesurferObj] = useState();
@@ -135,7 +136,6 @@ const WaveformOptions = () => {
   const handleTrim = async () => {
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     console.log(audioCtx);
-    console.log(123);
     console.log(wavesurferObj);
     if (wavesurferObj) {
       // get start and end points of the selected region
@@ -148,11 +148,29 @@ const WaveformOptions = () => {
         console.log(audioBuffer);
 
         const sampleRate = audioBuffer.sampleRate;
+        console.log(sampleRate);
         const newBuffer = audioCtx.createBuffer(
           audioBuffer.numberOfChannels,
           (end - start) * sampleRate,
           sampleRate
         );
+        console.log(newBuffer);
+        // for (
+        //   let channel = 0;
+        //   channel < audioBuffer.numberOfChannels;
+        //   channel++
+        // ) {
+        //   const inputData = audioBuffer.getChannelData(channel);
+        //   const outputData = newBuffer.getChannelData(channel);
+        //   for (
+        //     let i = start * sampleRate, j = 0;
+        //     i < end * sampleRate;
+        //     i++, j++
+        //   ) {
+
+        //     outputData[j] = inputData[i];
+        //   }
+        // }
 
         for (
           let channel = 0;
@@ -163,10 +181,11 @@ const WaveformOptions = () => {
           const outputData = newBuffer.getChannelData(channel);
 
           for (
-            let i = start * sampleRate, j = 0;
+            let i = Math.ceil(start * sampleRate), j = 0;
             i < end * sampleRate;
             i++, j++
           ) {
+            i === Math.ceil(start * sampleRate) && console.log(i);
             outputData[j] = inputData[i];
           }
         }
@@ -174,6 +193,12 @@ const WaveformOptions = () => {
         const wavData = toWav(newBuffer);
         const blob = new Blob([new Uint8Array(wavData)], { type: "audio/wav" });
         const url = URL.createObjectURL(blob);
+        const response = await fetch(url);
+        console.log(response);
+        const arrayBuffer = await response.arrayBuffer();
+        audioCtx.decodeAudioData(arrayBuffer, (buffer) => {
+          setAudioBuffer(buffer);
+        });
         setAudio((prev) => {
           console.log(prev);
           return { ...prev, url };
