@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useRef } from "react";
 import WaveSurfer from "wavesurfer.js";
-//import Regions from "wavesurfer.js/dist/plugins/regions.esm.js";
 import Regions from "wavesurfer.js/plugins/regions";
 import AudioEditor from "./audioEditor";
 import initialOptions from "./initialOptions";
@@ -134,6 +133,7 @@ const WaveformOptions = () => {
 
   const handleTrim = async () => {
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    console.log(wavesurferObj);
     if (wavesurferObj) {
       // get start and end points of the selected region
       const region = wavesurferObj.plugins[2].regions[0];
