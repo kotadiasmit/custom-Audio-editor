@@ -23,7 +23,6 @@ const WaveformOptions = () => {
   const [loop, setLoop] = useState(false);
 
   const wavesurferRef = useRef(null);
-  //console.log(currentTime);
   useEffect(() => {
     if (wavesurferObj) {
       wavesurferObj.setOptions(options);
@@ -63,9 +62,7 @@ const WaveformOptions = () => {
       color: "rgba(255, 0, 0, 0.1)",
     });
 
-    wsRegions.on("region-updated", (region) => {
-      console.log("Updated region", region);
-    });
+    wsRegions.on("region-updated", (region) => {});
 
     let activeRegion = null;
     wsRegions.on("region-in", (region) => {
@@ -90,7 +87,6 @@ const WaveformOptions = () => {
     });
 
     wavesurferRef.current = wavesurferInstance;
-    console.log(wavesurferInstance);
     return () => {
       if (wavesurferRef.current) {
         wavesurferRef.current.destroy();
