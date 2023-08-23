@@ -1,5 +1,5 @@
-import "./App.css";
 import WaveformOptions from "./waveFormOptions";
+import "./App.css";
 
 function App() {
   return (
