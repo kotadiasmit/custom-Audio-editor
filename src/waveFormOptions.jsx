@@ -1,10 +1,9 @@
-import { useState, useEffect } from "react";
-import { useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import WaveSurfer from "wavesurfer.js";
+import toWav from "audiobuffer-to-wav";
 import Regions from "wavesurfer.js/plugins/regions";
 import AudioEditor from "./audioEditor";
 import initialOptions from "./initialOptions";
-import toWav from "audiobuffer-to-wav";
 
 const WaveformOptions = () => {
   const [wavesurferObj, setWavesurferObj] = useState();
